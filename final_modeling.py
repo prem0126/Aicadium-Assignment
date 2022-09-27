@@ -107,7 +107,7 @@ def svm(x_train, y_train, x_test, y_test):
     x_train = x_train[x_train.columns.intersection(features_selected)]
     x_test = x_test[x_test.columns.intersection(features_selected)]
     
-    param_grid = {'C': [0.1, 1, 10, 100],
+    param_grid = {'C': [0.1, 1, 10, 50],
                   'gamma': [1, 0.1, 0.01, 0.001],
                   'kernel': ['rbf', 'poly', 'sigmoid']}
     
@@ -140,9 +140,12 @@ def xgboost(x_train, y_train, x_test, y_test):
     x_train = x_train[x_train.columns.intersection(features_selected)]
     x_test = x_test[x_test.columns.intersection(features_selected)]
     
-    param_grid = {'max_depth' : [3,6,10],
-                  'learning_rate' : [0.01, 0.05, 0.1],
-                  'n_estimators' : [60, 100, 200]}
+    param_grid = {'gamma': [0, 0.2, 0.8, 3.2, 6.4, 25.6, 50],
+                  'max_depth' : [3, 6, 10, 15],
+                  'learning_rate' : [0.01, 0.05, 0.1, 1],
+                  'reg_alpha': [0.4, 0.8, 1.6, 3.2, 12.8],
+                  'reg_lambda': [0.4,0.8,1.6,3.2,6.4,12.8],
+                  'n_estimators' : [60, 100, 150, 200]}
         
     model = XGBClassifier()
     model_grid = GridSearchCV(estimator=model,
@@ -174,22 +177,50 @@ def main():
     x_test_smote = test_smote.drop(columns=['Revenue'])
     y_test_smote = test_smote['Revenue']
     
-    rf_result_smote = RandomForest(x_train_smote, y_train_smote,
-                                   x_test_smote, y_test_smote)
+    # rf_result_smote = RandomForest(x_train_smote, y_train_smote,
+    #                                x_test_smote, y_test_smote)
     
-    svm_result_smote = svm(x_train_smote, y_train_smote,
-                           x_test_smote, y_test_smote)
+    # with open('Finetued_RandomForest_result_somte.json', 'w') as file:
+    #     json.dump(rf_result_smote, file)
+    # file.close()
+    
+    # svm_result_smote = svm(x_train_smote, y_train_smote,
+    #                        x_test_smote, y_test_smote)
     
     xgboost_result_smote = xgboost(x_train_smote, y_train_smote,
-                           x_test_smote, y_test_smote)
+                            x_test_smote, y_test_smote)
     
-    smote_result = {'Random Forest' : rf_result_smote,
-                    'Svm' : svm_result_smote,
-                    'XGboost' : xgboost_result_smote}
+    with open('Finetued_XGboost_result_somte.json', 'w') as file:
+        json.dump(xgboost_result_smote, file)
+    file.close()
     
-    with open('Finetuned_models_smote.json', 'w') as file:
-        json.dump(smote_result, file)
-    file.close()    
+    # smote_result = {'Random Forest' : rf_result_smote,
+    #                 'Svm' : svm_result_smote,
+    #                 'XGboost' : xgboost_result_smote}
+    
+    # with open('Finetuned_models_smote.json', 'w') as file:
+    #     json.dump(smote_result, file)
+    # file.close()    
+    
+    # train_rbo, test_rbo = read_dataset('Rbo')
+    # x_train_rbo = train_rbo.drop(columns=['Revenue'])
+    # y_train_rbo = train_rbo['Revenue']
+    # x_test_rbo = test_rbo.drop(columns=['Revenue'])
+    # y_test_rbo = test_rbo['Revenue']
+    
+    # rf_result_rbo = RandomForest(x_train_rbo, y_train_rbo,
+    #                                x_test_rbo, y_test_rbo)
+    
+    # with open('Finetued_RandomForest_result_rbo.json', 'w') as file:
+    #     json.dump(rf_result_rbo, file)
+    # file.close()
+    
+    # xgboost_result_rbo = xgboost(x_train_rbo, y_train_rbo,
+    #                         x_test_rbo, y_test_rbo)
+    
+    # with open('Finetued_XGboost_result_rbo.json', 'w') as file:
+    #     json.dump(xgboost_result_rbo, file)
+    # file.close()
     
     
 

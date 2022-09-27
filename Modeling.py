@@ -323,8 +323,6 @@ def main():
               'XgBoost' : xgboost_result,
               'Naive Bayes' : nb_result}
     
-    print(result)
-    
     with open('Base_Model_Results.json', 'w') as file:
         json.dump(result, file)
     

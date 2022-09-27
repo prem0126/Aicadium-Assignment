@@ -141,7 +141,7 @@ class RBO:
         samples[self.target_variable] = self.min_class
         df_upsampled = self.dataset.append(samples, ignore_index = True)
         
-        print(df_upsampled['Revenue'].value_counts())
+        #print(df_upsampled['Revenue'].value_counts())
         
         return df_upsampled 
         
@@ -176,7 +176,7 @@ def smote(X, y):
     
     dataset = pd.DataFrame(X_res)
     dataset['Revenue'] = y_res
-    print(dataset)
+
     return dataset
 
 def undersample(X, y, sampling_strategy='auto'):
@@ -197,13 +197,14 @@ def main():
     y = dataset['Revenue']
     
     reduced = undersample(X, y, 0.35)
+    X = reduced.drop(columns=['Revenue'])
+    y = reduced['Revenue']
     #print(reduced.columns)
-    rbo_dataset = rbo(dataset)
-    print(rbo_dataset['Revenue'].value_counts())
+    rbo_dataset = rbo(reduced)
     rbo_dataset.to_csv('balanced_train_data_rbo.csv', index=False)
     
-    # #smote_dataset = smote(X, y)
-    # #smote_dataset.to_csv('balanced_train_data_smote.csv', index=False)
+    smote_dataset = smote(X, y)
+    smote_dataset.to_csv('balanced_train_data_smote.csv', index=False)
     
     # undersampled_dataset = undersample(X, y)
     # undersampled_dataset.to_csv('Undersampled_data.csv', index=False)

@@ -31,6 +31,47 @@ def clean(dataset):
     
     return dataset
 
+def clean_train(train_set):
+    '''
+    Remove outliers from the training set using z_score test
+    input : Train set
+    output : cleaned Train set
+    '''
+    
+    def z_score_outlier(val, mean, std):
+        z = (val - mean)/std
+        if z > 5 or z < -5:
+            return True
+        else:
+            return False
+    
+    AD_mean = train_set['Administrative_Duration'].mean()
+    AD_std = train_set['Administrative_Duration'].std()
+    train_set['AD_outlier'] = train_set['Administrative_Duration'].apply(lambda x: z_score_outlier(x,
+                                                                                               AD_mean,
+                                                                                               AD_std))
+    
+    ID_mean = train_set['Informational_Duration'].mean()
+    ID_std = train_set['Informational_Duration'].std()
+    train_set['ID_outlier'] = train_set['Informational_Duration'].apply(lambda x: z_score_outlier(x,
+                                                                                                  ID_mean,
+                                                                                                  ID_std))
+    
+    PD_mean = train_set['ProductRelated_Duration'].mean()
+    PD_std = train_set['ProductRelated_Duration'].std()
+    train_set['PD_outlier'] = train_set['ProductRelated_Duration'].apply(lambda x: z_score_outlier(x,
+                                                                                                   PD_mean,
+                                                                                                   PD_std))
+    
+    train_set = train_set[~((train_set['PD_outlier'] == True) |
+                            (train_set['ID_outlier'] == True) |
+                            (train_set['AD_outlier'] == True))]
+    
+    train_set = train_set.drop(columns=['AD_outlier', 'ID_outlier', 'PD_outlier'])
+    
+    return train_set
+    
+
 def add_features(dataset):
     '''
     Engineer Features
@@ -100,6 +141,12 @@ def split_dataset(dataset):
     return train_set, test_set
     
 def transform(dataset):
+    '''
+    Perform standardization on numerical columns and one hot encoding categorical
+    columns.
+    input : dataset
+    output : transformed dataset
+    '''
     
     features = {'numerical' : ['Administrative',
                                 'Informational',
@@ -149,6 +196,7 @@ def transform(dataset):
     
     
 def main():
+    '''Main function'''
     
     dataset = pd.read_csv('coding_round_data.csv')
     
@@ -159,9 +207,11 @@ def main():
     train_set, test_set = split_dataset(dataset)
     train_set.reset_index(inplace=False)
     test_set.reset_index(inplace=False)
+
+    train_set = clean_train(train_set)
     
     train_set.to_csv('Train_data.csv', index=False)
-    #test_set.to_csv('Test_data.csv', index=False)
+    test_set.to_csv('Test_data.csv', index=False)
     
 
 if __name__ == '__main__':
