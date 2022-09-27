@@ -41,16 +41,16 @@ Features added:
  
  Synthetic datapoints are generated to reduce the bias towards majority class.
  
- ### SMOTE-NC (Synthetic Minority Over-sampling Technique for Nominal and Continuous)
+ #### SMOTE-NC (Synthetic Minority Over-sampling Technique for Nominal and Continuous)
  SMOTE-NC is derived to handle dataset with both numerical and categorical features. It works by fitting a line between a minority sample and k neighbors
  to that sample, and then samples n points from that line
  
- ### RBO (Radial Based Oversampling)
+ #### RBO (Radial Based Oversampling)
  
  RBO finds regions in which the synthetic objects from minority class should be generated on the basis of the imbalance distribution estimation with
  radial basis functions.
  
- ## Near-Miss Undersampling
+ #### Near-Miss Undersampling
  
  Undersampling techniques are used to eliminate some of the samples from the majority class to reduce bias. When instances of the two classes are
  very close to each other, we remove the instances of the majority class to increase the spaces between the two classes. This also overcomes the noise
