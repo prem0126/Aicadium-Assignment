@@ -83,4 +83,22 @@ of features in seperating the classes. The features are ranked based on the abso
 
 The mRMR is a feature selection approach that tends to select features with a high correlation with the class (output) and a low correlation between themselves. For continuous features, the F-statistic can be used to calculate correlation with the class (relevance) and the Pearson correlation coefficient can be used to calculate correlation between features (redundancy). Thereafter, features are selected one by one by applying a greedy search to maximize the objective function, which is a function of relevance and redundancy.
 
+## Modeling
 
+The task in hand is a binary classification task and the follwing models are trained and evaluated:
+  - Logistic Regression
+  - SVM
+  - Naive Bayes
+  - Random Forest
+  - XGBoost
+  - MLP
+The following metrics are reported for both training and test set:
+  - Accuracy
+  - Precision
+  - Recall
+ 
+ ### Performance of models on Un-Balanced Data:
+ 
+ | Model | Train Accuracy | Train Precision | Train Recall |
+ | :--   | :--            | :--             | :--          |
+ | SVM.  |                |                 |              |
