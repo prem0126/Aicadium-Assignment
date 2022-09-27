@@ -68,15 +68,7 @@ def RandomForest(x_train, y_train, x_test, y_test):
     #Subsetting features selected using MDI method
     x_train = x_train[x_train.columns.intersection(features_selected)]
     x_test = x_test[x_test.columns.intersection(features_selected)]
-    
-    n_estimators = [int(x) for x in np.linspace(start = 200, stop = 1000, num = 10)] #Number of trees
-    max_features = ['sqrt', 'log2'] #Num of features to consider at every split
-    max_depth = [int(x) for x in np.linspace(10, 100, num = 11)] #Max num of levels in a tree
-    max_depth.append(None)
-    min_samples_split = [2, 5, 10, 20, 30] #Min num of samples required to split a node
-    min_samples_leaf = [1, 2, 4] #Min num of samples required at each leaf
-    bootstrap = [True, False] #Selecting samples
-    
+
     param_grid = {'bootstrap': [True],
                 'max_depth': [80, 90, 100, 110],
                 'max_features': [2, 3],
