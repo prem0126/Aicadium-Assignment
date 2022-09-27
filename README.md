@@ -92,6 +92,7 @@ The task in hand is a binary classification task and the follwing models are tra
   - Random Forest
   - XGBoost
   - MLP
+
 The following metrics are reported for both training and test set:
   - Accuracy
   - Precision
@@ -99,6 +100,35 @@ The following metrics are reported for both training and test set:
  
  ### Performance of models on Un-Balanced Data:
  
- | Model | Train Accuracy | Train Precision | Train Recall |
- | :--   | :--            | :--             | :--          |
- | SVM.  |                |                 |              |
+ |        Model         | Train Accuracy | Train Precision | Train Recall | Test Accuracy | Test Precision | Test Recall |
+ | :--                  | :--            | :--             | :--          | :--           | :--            | :--         |
+ | Logistic Regression  |                |                 |              |               |                |             |
+ | Naive Bayes          |                |                 |              |               |                |             |
+ | SVM                  |                |                 |              |               |                |             |
+ | Random Forest        |                |                 |              |               |                |             |
+ | XGBoost              |                |                 |              |               |                |             |
+ | MLP                  |                |                 |              |               |                |             |
+ 
+ ## Fine Tuning
+ 
+Grid Search with cross validation is used to conduct hyper-parameters tuning, along with only proving the models with selected features and a balanced dataset.
+
+### Performance of fine tuned models on SMOTE-NC balanced dataset
+
+ |        Model         | Train Accuracy | Train Precision | Train Recall | Test Accuracy | Test Precision | Test Recall |
+ | :--                  | :--            | :--             | :--          | :--           | :--            | :--         |
+ | Logistic Regression  |                |                 |              |               |                |             |
+ | Naive Bayes          |                |                 |              |               |                |             |
+ | SVM                  |                |                 |              |               |                |             |
+ | Random Forest        |                |                 |              |               |                |             |
+ | XGBoost              |                |                 |              |               |                |             |
+ 
+### Performance of fine tuned models on RBO balanced dataset
+
+ |        Model         | Train Accuracy | Train Precision | Train Recall | Test Accuracy | Test Precision | Test Recall |
+ | :--                  | :--            | :--             | :--          | :--           | :--            | :--         |
+ | Logistic Regression  |                |                 |              |               |                |             |
+ | Naive Bayes          |                |                 |              |               |                |             |
+ | SVM                  |                |                 |              |               |                |             |
+ | Random Forest        |                |                 |              |               |                |             |
+ | XGBoost              |                |                 |              |               |                |             |
