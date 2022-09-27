@@ -8,14 +8,17 @@ Created on Sat Sep 24 19:26:02 2022
 
 import numpy as np
 import tensorflow as tf
+from keras import backend as K
 import random
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_score, recall_score
 import pandas as pd
-
+from tensorflow.keras import regularizers
+import json
 
 features = {'numerical' : ['Administrative',
                             'Informational',
@@ -49,12 +52,15 @@ features = {'numerical' : ['Administrative',
                               'VisitorType']}
 
 
-def read_data(balanced_data=True):
+def read_data(dataset_type):
+    assert dataset_type in ['Unbalanced', 'Smote', 'Rbo']
     
-    if not balanced_data:
+    if dataset_type == 'Unbalanced':
         train_data = pd.read_csv('Train_data.csv')
-    elif balanced_data:
+    elif dataset_type == 'Smote':
         train_data = pd.read_csv('balanced_train_data_smote.csv')
+    elif dataset_type == 'Rbo':
+        train_data = pd.read_csv('balanced_train_data_rbo.csv')
         
     test_data = pd.read_csv('Test_data.csv')
     
@@ -140,9 +146,11 @@ class LogisticRegression_C:
     
     def cost_derivative(self, batch_idx):
         
+        lamda = 2 #for l2
+        
         x = self.x_train.loc[batch_idx].values
         y = self.y_train.loc[batch_idx]
-        derivative = (self.sigmoid(x.dot(self.w)) - y).dot(x)/len(x)
+        derivative = (self.sigmoid(x.dot(self.w)) - y).dot(x)/len(x) + (lamda/len(x))*self.w #l2 regularization
         
         return derivative
     
@@ -167,20 +175,44 @@ class LogisticRegression_C:
         
         return pred
 
+
+def evaluate(model, x_train, y_train, x_test, y_test):
+    
+    #Evaluate Test set
+    y_pred = model.predict(x_test)
+    cm_test = confusion_matrix(y_test, y_pred)
+    precision_test = precision_score(y_test, y_pred)
+    recall_test = recall_score(y_test, y_pred)
+    
+    #Evaluate Train set
+    y_pred = model.predict(x_train)
+    cm_train = confusion_matrix(y_train, y_pred)
+    precision_train = precision_score(y_train, y_pred)
+    recall_train = recall_score(y_train, y_pred)
+    
+    result = {'train' : {'cm' : cm_train.tolist(),
+                         'precision' : precision_train.tolist(),
+                         'recall' : recall_train.tolist()},
+              'test' : {'cm' : cm_test.tolist(),
+                        'precision' : precision_test.tolist(),
+                        'recall' : recall_test.tolist()}}
+    
+    return result
+
+
 def logistic_regression(x_train, y_train, x_test, y_test):
     
     model = LogisticRegression_C(x_train, y_train)
     model.train()
     
-    y_pred = model.predict(x_test)
-    cm = confusion_matrix(y_test, y_pred)
-    print(cm)
+    result = evaluate(model, x_train, y_train, x_test, y_test)
     
-    model = LogisticRegression()
-    model.fit(x_train, y_train)
-    y_pred = model.predict(x_test)
-    cm = confusion_matrix(y_test, y_pred)
-    print(cm)
+    return result
+    # model = LogisticRegression()
+    # model.fit(x_train, y_train)
+    # y_pred = model.predict(x_test)
+    # cm = confusion_matrix(y_test, y_pred)
+    # print(cm)
 
 def NB(x_train, y_train, x_test, y_test):
     
@@ -189,55 +221,114 @@ def NB(x_train, y_train, x_test, y_test):
                        features['numerical'])
     model.fit()
     
-    y_pred = model.predict(x_test)
-    cm = confusion_matrix(y_test, y_pred)
-    print(cm)
+    result = evaluate(model, x_train, y_train, x_test, y_test)
+    
+    return result
 
 def random_forest(x_train, y_train, x_test, y_test):
     
     model = RandomForestClassifier()
     model.fit(x_train, y_train)
     
-    y_pred = model.predict(x_test)
-    cm = confusion_matrix(y_test, y_pred)
-    print(cm)
+    result = evaluate(model, x_train, y_train, x_test, y_test)
+    
+    return result
 
 def svm(x_train, y_train, x_test, y_test):
     
     model = SVC(gamma='auto')
     model.fit(x_train, y_train)
     
-    y_pred = model.predict(x_test)
-    cm = confusion_matrix(y_test, y_pred)
-    print(cm)
+    result = evaluate(model, x_train, y_train, x_test, y_test)
+    
+    return result
 
 def XgBoost(x_train, y_train, x_test, y_test):
     
     model = XGBClassifier()
     model.fit(x_train, y_train)
     
-    y_pred = model.predict(x_test)
-    cm = confusion_matrix(y_test, y_pred)
-    print(cm)
+    result = evaluate(model, x_train, y_train, x_test, y_test)
     
+    return result
+    
+
+def MLP(x_train, y_train, x_test, y_test):
+    
+    inp = tf.keras.Input((x_train.shape[1],))
+    layer2 = tf.keras.layers.Dense(units=150, activation='tanh')(inp)
+    layer3 = tf.keras.layers.Dropout(0.1)(layer2)
+    layer4 = tf.keras.layers.Dense(units=200, activation='tanh',
+                                   kernel_regularizer=regularizers.L2(1e-4))(layer3)
+    layer5 = tf.keras.layers.Dropout(0.1)(layer4)
+    layer6 = tf.keras.layers.Dense(units=100, activation='tanh',
+                                   kernel_regularizer=regularizers.L2(1e-4))(layer5)
+    layer7 = tf.keras.layers.Dropout(0.1)(layer6)
+    layer8 = tf.keras.layers.Dense(units=50, activation='tanh',
+                                   kernel_regularizer=regularizers.L2(1e-4))(layer7)
+    layer9 = tf.keras.layers.Dropout(0.1)(layer8)
+    layer10 = tf.keras.layers.Dense(units=20, activation='tanh',
+                                    kernel_regularizer=regularizers.L2(1e-4))(layer9)
+    layer11 = tf.keras.layers.Dropout(0.1)(layer10)
+    
+    output = tf.keras.layers.Dense(1, activation = 'sigmoid')(layer11)
+    
+    model = tf.keras.Model(inputs=inp, outputs=output)
+    
+    def focal_loss(y_true, y_pred):
+        gamma = 2.0
+        alpha = 0.75 #Recheck if right class is weighted
+        pt_1 = tf.where(tf.equal(y_true, 1), y_pred, tf.ones_like(y_pred))
+        pt_0 = tf.where(tf.equal(y_true, 0), y_pred, tf.zeros_like(y_pred))
+        loss = -K.sum(alpha * K.pow(1.-pt_1, gamma) * K.log(pt_1)) - K.sum((1-alpha) * K.pow(pt_0, gamma) * K.log(1.-pt_0))
+        
+        return loss
+    
+    model.compile(optimizer='adam',
+                  loss='binary_crossentropy', 
+                  metrics=[tf.keras.metrics.Precision(name='precision'),
+                           tf.keras.metrics.Recall(name='recall'),'accuracy'])
+    
+    history = model.fit(x_train,
+                        y_train,
+                        batch_size=1000,
+                        epochs= 100,
+                        validation_data=(x_test,y_test))
+    
+
 
 def main():
     
-    train_data, test_data = read_data()
+    train_data, test_data = read_data(dataset_type='Rbo')
     x_train = train_data.drop(columns=['Revenue'])
     y_train = train_data['Revenue']
     x_test = test_data.drop(columns=['Revenue'])
     y_test = test_data['Revenue']
     
-    # print('Random Forest')
-    #random_forest(x_train, y_train, x_test, y_test)
-    # print('SVM')
-    #svm(x_train, y_train, x_test, y_test)
-    # print('XgBoost')
-    #XgBoost(x_train, y_train, x_test, y_test)
-    #NB(x_train, y_train, x_test, y_test)
-    #logistic_regression(x_train, y_train, x_test, y_test)
+    #print(y_train.value_counts())
     
+    rf_result = random_forest(x_train, y_train, x_test, y_test)
+    
+    svm_result = svm(x_train, y_train, x_test, y_test)
+    
+    xgboost_result = XgBoost(x_train, y_train, x_test, y_test)
+    
+    nb_result = NB(x_train, y_train, x_test, y_test)
+    
+    lr_result = logistic_regression(x_train, y_train, x_test, y_test)
+    
+    result = {'Logistic Regression' : lr_result,
+              'Random Forest' : rf_result,
+              'Svm' : svm_result,
+              'XgBoost' : xgboost_result,
+              'Naive Bayes' : nb_result}
+    
+    print(result)
+    
+    with open('Base_Model_Results.json', 'w') as file:
+        json.dump(result, file)
+    
+    file.close()
 
 if __name__ == '__main__':    
     main()

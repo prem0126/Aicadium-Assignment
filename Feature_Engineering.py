@@ -161,7 +161,7 @@ def main():
     test_set.reset_index(inplace=False)
     
     train_set.to_csv('Train_data.csv', index=False)
-    test_set.to_csv('Test_data.csv', index=False)
+    #test_set.to_csv('Test_data.csv', index=False)
     
 
 if __name__ == '__main__':

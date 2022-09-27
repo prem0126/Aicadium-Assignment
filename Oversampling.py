@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import random
 from imblearn.over_sampling import SMOTENC
+from imblearn.under_sampling import NearMiss
 from tqdm import tqdm
 
 features = {'numerical' : ['Administrative',
@@ -51,7 +52,7 @@ class RBO:
                  target_variable,
                  categorical_columns,
                  step_size=0.0001,
-                 n_iters=20,
+                 n_iters=10,
                  gamma=0.05,
                  criteria='maximize'):
         assert criteria in ['balance', 'maximize', 'minimize']
@@ -102,6 +103,7 @@ class RBO:
         
         samples = pd.DataFrame(columns = self.k.columns)
         while len(samples) + len(self.k) < len(self.K):
+            print(len(samples) + len(self.k))
             idx = np.random.choice(self.k.index)
             point = self.k.loc[idx].copy()
             score = min_scores[idx]
@@ -177,17 +179,34 @@ def smote(X, y):
     print(dataset)
     return dataset
 
+def undersample(X, y, sampling_strategy='auto'):
+    
+    nr = NearMiss(version=1, n_neighbors=3,
+                  sampling_strategy=sampling_strategy)
+    X_res, y_res = nr.fit_resample(X, y)
+    
+    dataset = pd.DataFrame(X_res)
+    dataset['Revenue'] = y_res
+    
+    return dataset
+
 def main():
     
     dataset = pd.read_csv('Train_data.csv')
     X = dataset.drop(columns=['Revenue'])
     y = dataset['Revenue']
     
+    reduced = undersample(X, y, 0.35)
+    #print(reduced.columns)
     rbo_dataset = rbo(dataset)
     print(rbo_dataset['Revenue'].value_counts())
     rbo_dataset.to_csv('balanced_train_data_rbo.csv', index=False)
-    #smote_dataset = smote(X, y)
-    #smote_dataset.to_csv('balanced_train_data_smote.csv', index=False)
+    
+    # #smote_dataset = smote(X, y)
+    # #smote_dataset.to_csv('balanced_train_data_smote.csv', index=False)
+    
+    # undersampled_dataset = undersample(X, y)
+    # undersampled_dataset.to_csv('Undersampled_data.csv', index=False)
 
 if __name__ == '__main__':
     main()
