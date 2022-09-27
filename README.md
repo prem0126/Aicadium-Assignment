@@ -41,16 +41,17 @@ Features added:
  
  Synthetic datapoints are generated to reduce the bias towards majority class.
  
- #### SMOTE-NC (Synthetic Minority Over-sampling Technique for Nominal and Continuous)
+ ### SMOTE-NC (Synthetic Minority Over-sampling Technique for Nominal and Continuous)
  SMOTE-NC is derived to handle dataset with both numerical and categorical features. It works by fitting a line between a minority sample and k neighbors
  to that sample, and then samples n points from that line
  
- #### RBO (Radial Based Oversampling)
+ ### RBO (Radial Based Oversampling)
  
  RBO finds regions in which the synthetic objects from minority class should be generated on the basis of the imbalance distribution estimation with
- radial basis functions.
+ radial basis functions. A random minority sample is selected and then we move in a random direction with a specified step size from that point. Then
+ the potential of that point belonging to minority class is calculated and if it the crieteria that point is added to the minority class.  
  
- #### Near-Miss Undersampling
+ ### Near-Miss Undersampling
  
  Undersampling techniques are used to eliminate some of the samples from the majority class to reduce bias. When instances of the two classes are
  very close to each other, we remove the instances of the majority class to increase the spaces between the two classes. This also overcomes the noise
@@ -60,3 +61,26 @@ Features added:
  to sample extra minority points.
  
  ## Feature Selection
+ 
+There are a total of 89 features that are passed to the model after one-hot encoding. Feature selection methods are used to remove highly correlated features that impacts the models performance. 30 features are selected after feature selection.
+
+### Tree’s Feature Importance from Mean Decrease in Impurity (MDI)
+
+The impurity-based feature importance ranks the numerical features to be the most important features.
+Gini importance (or mean decrease impurity), is computed from the Random Forest structure. For each feature we can collect how on average it decreases the impurity. The average over all trees in the forest is the measure of the feature importance.
+
+### Permutation Based Feature Importance
+
+MDI method has few disadvantages. They are biased towards high cardinality features. They are computed on training set statistics and therefore do not reflect the ability of feature to be useful to make predictions that generalize to the test set (when the model has enough capacity)
+Permutation based method overcomes the disadvantages. This method will randomly shuffle each feature and compute the change in the model’s performance. The features which impact the performance the most are the most important one.
+
+### Assesing the co-efficients of Logistic Regression Decision boundary
+
+The weights that are learned during training logistic regression to fit a decision boundary to seprate the classes, can be used to measure the importance
+of features in seperating the classes. The features are ranked based on the absolute values of their co-efficients.
+
+### mRMR - Minimum Redundancy - Maximum Relevance
+
+The mRMR is a feature selection approach that tends to select features with a high correlation with the class (output) and a low correlation between themselves. For continuous features, the F-statistic can be used to calculate correlation with the class (relevance) and the Pearson correlation coefficient can be used to calculate correlation between features (redundancy). Thereafter, features are selected one by one by applying a greedy search to maximize the objective function, which is a function of relevance and redundancy.
+
+
