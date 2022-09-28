@@ -125,6 +125,6 @@ Grid Search with cross validation is used to conduct hyper-parameters tuning, al
 
  |        Model         | Train Accuracy | Train Precision | Train Recall | Test Accuracy | Test Precision | Test Recall |
  | :--                  | :--            | :--             | :--          | :--           | :--            | :--         |
- | SVM                  |                |                 |              |               |                |             |
+ | SVM                  |      0.865          |    0.937             |     0.801         |     0.828          |    0.401            |   0.73          |
  | Random Forest        |      0.966          |    0.959             |     0.974         |      0.76         |     0.45           |    0.84         |
  | XGBoost              |      0.99          |       1          |    0.99          |      0.801         |    0.623            |    0.785         |
