@@ -15,7 +15,7 @@ from sklearn.svm import SVC
 from xgboost import XGBClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import precision_score, recall_score, accuracy_score
 import pandas as pd
 from tensorflow.keras import regularizers
 import json
@@ -53,6 +53,16 @@ features = {'numerical' : ['Administrative',
 
 
 def read_data(dataset_type):
+    '''
+    Read the dataset
+    Parameters
+    ----------
+    dataset_type : type of dataset to read
+    Returns
+    -------
+    train_data : train set
+    test_data : test set
+    '''   
     assert dataset_type in ['Unbalanced', 'Smote', 'Rbo']
     
     if dataset_type == 'Unbalanced':
@@ -177,23 +187,40 @@ class LogisticRegression_C:
 
 
 def evaluate(model, x_train, y_train, x_test, y_test):
-    
+    '''
+    Evaluate the model on both train set and test set using Confussion matrix,
+    precision and reacall scores.
+    Parameters
+    ----------
+    model : Trained model
+    x_train : train set independent variables
+    y_train : train set target variable
+    x_test : test set independent variables
+    y_test : test set target variable
+    Returns
+    -------
+    result : dist containing the evaluation metrics
+    '''
     #Evaluate Test set
     y_pred = model.predict(x_test)
     cm_test = confusion_matrix(y_test, y_pred)
+    accuracy_test = accuracy_score(y_test, y_pred)
     precision_test = precision_score(y_test, y_pred)
     recall_test = recall_score(y_test, y_pred)
     
     #Evaluate Train set
     y_pred = model.predict(x_train)
     cm_train = confusion_matrix(y_train, y_pred)
+    accuracy_train = accuracy_score(y_train, y_pred)
     precision_train = precision_score(y_train, y_pred)
     recall_train = recall_score(y_train, y_pred)
     
     result = {'train' : {'cm' : cm_train.tolist(),
+                         'accuracy' : accuracy_train.tolist(),
                          'precision' : precision_train.tolist(),
                          'recall' : recall_train.tolist()},
               'test' : {'cm' : cm_test.tolist(),
+                        'accuracy' : accuracy_test.tolist(),
                         'precision' : precision_test.tolist(),
                         'recall' : recall_test.tolist()}}
     
@@ -201,6 +228,18 @@ def evaluate(model, x_train, y_train, x_test, y_test):
 
 
 def logistic_regression(x_train, y_train, x_test, y_test):
+    '''
+    Function to train a logistic regression model
+    Parameters
+    ----------
+    x_train : train set independent variables
+    y_train : train set target variable
+    x_test : test set independent variables
+    y_test : test set target variable
+    Returns
+    -------
+    result : dist containing the evaluation metrics
+    '''
     
     model = LogisticRegression_C(x_train, y_train)
     model.train()
@@ -208,13 +247,20 @@ def logistic_regression(x_train, y_train, x_test, y_test):
     result = evaluate(model, x_train, y_train, x_test, y_test)
     
     return result
-    # model = LogisticRegression()
-    # model.fit(x_train, y_train)
-    # y_pred = model.predict(x_test)
-    # cm = confusion_matrix(y_test, y_pred)
-    # print(cm)
 
 def NB(x_train, y_train, x_test, y_test):
+    '''
+    Function to train a Naive Bayes model
+    Parameters
+    ----------
+    x_train : train set independent variables
+    y_train : train set target variable
+    x_test : test set independent variables
+    y_test : test set target variable
+    Returns
+    -------
+    result : dist containing the evaluation metrics
+    '''
     
     model = NaiveBayes(x_train, y_train,
                        features['categorical'],
@@ -226,6 +272,18 @@ def NB(x_train, y_train, x_test, y_test):
     return result
 
 def random_forest(x_train, y_train, x_test, y_test):
+    '''
+    Function to train a Random Forest model
+    Parameters
+    ----------
+    x_train : train set independent variables
+    y_train : train set target variable
+    x_test : test set independent variables
+    y_test : test set target variable
+    Returns
+    -------
+    result : dist containing the evaluation metrics
+    '''
     
     model = RandomForestClassifier()
     model.fit(x_train, y_train)
@@ -235,6 +293,18 @@ def random_forest(x_train, y_train, x_test, y_test):
     return result
 
 def svm(x_train, y_train, x_test, y_test):
+    '''
+    Function to train a SVM model
+    Parameters
+    ----------
+    x_train : train set independent variables
+    y_train : train set target variable
+    x_test : test set independent variables
+    y_test : test set target variable
+    Returns
+    -------
+    result : dist containing the evaluation metrics
+    '''
     
     model = SVC(gamma='auto')
     model.fit(x_train, y_train)
@@ -244,6 +314,18 @@ def svm(x_train, y_train, x_test, y_test):
     return result
 
 def XgBoost(x_train, y_train, x_test, y_test):
+    '''
+    Function to train a XGboost model
+    Parameters
+    ----------
+    x_train : train set independent variables
+    y_train : train set target variable
+    x_test : test set independent variables
+    y_test : test set target variable
+    Returns
+    -------
+    result : dist containing the evaluation metrics
+    '''
     
     model = XGBClassifier()
     model.fit(x_train, y_train)
@@ -254,6 +336,18 @@ def XgBoost(x_train, y_train, x_test, y_test):
     
 
 def MLP(x_train, y_train, x_test, y_test):
+    '''
+    Function to train a Multi layer perceptron model
+    Parameters
+    ----------
+    x_train : train set independent variables
+    y_train : train set target variable
+    x_test : test set independent variables
+    y_test : test set target variable
+    Returns
+    -------
+    None
+    '''
     
     inp = tf.keras.Input((x_train.shape[1],))
     layer2 = tf.keras.layers.Dense(units=150, activation='tanh')(inp)
@@ -275,15 +369,6 @@ def MLP(x_train, y_train, x_test, y_test):
     
     model = tf.keras.Model(inputs=inp, outputs=output)
     
-    def focal_loss(y_true, y_pred):
-        gamma = 2.0
-        alpha = 0.75 #Recheck if right class is weighted
-        pt_1 = tf.where(tf.equal(y_true, 1), y_pred, tf.ones_like(y_pred))
-        pt_0 = tf.where(tf.equal(y_true, 0), y_pred, tf.zeros_like(y_pred))
-        loss = -K.sum(alpha * K.pow(1.-pt_1, gamma) * K.log(pt_1)) - K.sum((1-alpha) * K.pow(pt_0, gamma) * K.log(1.-pt_0))
-        
-        return loss
-    
     model.compile(optimizer='adam',
                   loss='binary_crossentropy', 
                   metrics=[tf.keras.metrics.Precision(name='precision'),
@@ -292,7 +377,7 @@ def MLP(x_train, y_train, x_test, y_test):
     history = model.fit(x_train,
                         y_train,
                         batch_size=1000,
-                        epochs= 100,
+                        epochs= 50,
                         validation_data=(x_test,y_test))
     
 
@@ -305,8 +390,6 @@ def main():
     x_test = test_data.drop(columns=['Revenue'])
     y_test = test_data['Revenue']
     
-    #print(y_train.value_counts())
-    
     rf_result = random_forest(x_train, y_train, x_test, y_test)
     
     svm_result = svm(x_train, y_train, x_test, y_test)
@@ -316,6 +399,8 @@ def main():
     nb_result = NB(x_train, y_train, x_test, y_test)
     
     lr_result = logistic_regression(x_train, y_train, x_test, y_test)
+    
+    MLP(x_train, y_train, x_test, y_test)
     
     result = {'Logistic Regression' : lr_result,
               'Random Forest' : rf_result,

@@ -15,7 +15,7 @@ from operator import itemgetter
 import matplotlib.pyplot as plt
 import json
 
-
+plt.rcParams.update({'font.size': 22})
 
 class mRMR:
     
@@ -145,13 +145,12 @@ def mrmr(x_train, y_train):
     
     
 def random_forest_importance(x_train, y_train,
+                             x_test, y_test,
                              top_n=30, n_estimators=50):
     '''
     This function implements feature scoring using random forest classifer, 
     utilizing impurity metric and permutation method.
-    Parameters
-    ----------
-    x_train : Training dataset
+    input : x_train : Training dataset
     y_train : Target variable
     top_n : Total number of features to be selected. The default is 30.
     n_estimators : n_estimators for random forest classifier. The default is 50.
@@ -185,7 +184,7 @@ def random_forest_importance(x_train, y_train,
     fig.tight_layout()
     plt.savefig('random_forest_feature_importance_MDI.png', dpi=300)
     
-    result = permutation_importance(forest, x_train, y_train,
+    result = permutation_importance(forest, x_test, y_test,
                                     n_repeats=10, random_state=42,
                                     n_jobs=2) #check if test set should be passed
     
@@ -210,6 +209,19 @@ def random_forest_importance(x_train, y_train,
     plt.savefig('random_forest_feature_importance_Permutation.png', dpi=300)
     
 def logistic_regression_importance(x_train, y_train):
+    '''
+    This function selects features based on the learned weights of the logistic
+    regression model
+    Parameters
+    ----------
+    input : x_train : Training dataset
+    y_train : Target variable
+
+    Returns
+    -------
+    None.
+
+    '''
     
     model = LogisticRegression(max_iter=1000)
     model.fit(x_train, y_train)
@@ -240,8 +252,11 @@ def main():
     dataset = pd.read_csv('Train_data.csv')
     x_train = dataset.drop(columns=['Revenue'])
     y_train = dataset['Revenue']
+    test_set = pd.read_csv('Test_data.csv')
+    x_test = test_set.drop(columns=['Revenue'])
+    y_test = test_set['Revenue']
     
-    random_forest_importance(x_train, y_train)
+    random_forest_importance(x_train, y_train, x_test, y_test)
     logistic_regression_importance(x_train, y_train)
     mrmr(x_train, y_train)
 

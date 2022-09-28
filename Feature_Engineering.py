@@ -16,8 +16,12 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 def clean(dataset):
     '''
     Perform data cleaning
-    input : dataset
-    output : cleaned dataset
+    Parameters
+    ----------
+    dataset : dataset
+    Returns
+    -------
+    dataset : cleaned dataset
     '''
     
     dataset['Month'] = dataset['Month'].replace('June', 'Jun') #to maintain same format
@@ -34,8 +38,12 @@ def clean(dataset):
 def clean_train(train_set):
     '''
     Remove outliers from the training set using z_score test
-    input : Train set
-    output : cleaned Train set
+    Parameters
+    ----------
+    train_set : training data
+    Returns
+    -------
+    train_set : training set with outliers removed
     '''
     
     def z_score_outlier(val, mean, std):
@@ -75,10 +83,13 @@ def clean_train(train_set):
 def add_features(dataset):
     '''
     Engineer Features
-    input : dataset
-    output : dataset added with new features 
+    Parameters
+    ----------
+    dataset : dataset
+    Returns
+    -------
+    dataset : dataset added with new features 
     '''
-    
     
     '''Percentage of type of pages visited'''
     dataset['total_pages_viewed'] = dataset['Administrative'] + dataset['Informational'] + dataset['ProductRelated']
@@ -131,10 +142,15 @@ def split_dataset(dataset):
     '''
     Perform stratified train test split to preserve the same percentage of 
     each target class as in the complete set
-    input : dataset
-    output : train_set, test_set
+    Parameters
+    ----------
+    dataset : dataset
+    Returns
+    -------
+    train_set : training set
+    test_set : test set
     '''
-    
+
     train_set, test_set = train_test_split(dataset, test_size=0.20,
                                            random_state=42, stratify=dataset['Revenue'])
     
@@ -144,10 +160,14 @@ def transform(dataset):
     '''
     Perform standardization on numerical columns and one hot encoding categorical
     columns.
-    input : dataset
+    Parameters
+    ----------
+    dataset : dataset
+    Returns
+    -------
     output : transformed dataset
     '''
-    
+
     features = {'numerical' : ['Administrative',
                                 'Informational',
                                 'ProductRelated',
