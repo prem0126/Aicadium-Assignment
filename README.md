@@ -102,12 +102,12 @@ The following metrics are reported for both training and test set:
  
  |        Model         | Train Accuracy | Train Precision | Train Recall | Test Accuracy | Test Precision | Test Recall |
  | :--                  | :--            | :--             | :--          | :--           | :--            | :--         |
- | Logistic Regression  |                |                 |              |               |                |             |
- | Naive Bayes          |                |                 |              |               |                |             |
- | SVM                  |                |                 |              |               |                |             |
- | Random Forest        |                |                 |              |               |                |             |
- | XGBoost              |                |                 |              |               |                |             |
- | MLP                  |                |                 |              |               |                |             |
+ | Logistic Regression  |     0.436      |      0.414      |      0.311   |    0.436      |     0.101      |    0.337    |
+ | Naive Bayes          |     0.5        |      0          |      0       |    0.845      |     0          |    0        |
+ | SVM                  |     0.876      |        0.906    |      0.84    |    0.716      |     0.331      |    0.814    |
+ | Random Forest        |     1.0        |      1.0        |      1.0     |    0.741      |     0.355      |    0.824    |
+ | XGBoost              |     0.99       |      0.995      |      0.985   |    0.789      |     0.408      |    0.803    |
+ | MLP                  |     0.919      |      0.905      |       0.936  |      0.718    |        0.334   |      0.822  |
  
  ## Fine Tuning
  
@@ -117,18 +117,14 @@ Grid Search with cross validation is used to conduct hyper-parameters tuning, al
 
  |        Model         | Train Accuracy | Train Precision | Train Recall | Test Accuracy | Test Precision | Test Recall |
  | :--                  | :--            | :--             | :--          | :--           | :--            | :--         |
- | Logistic Regression  |                |                 |              |               |                |             |
- | Naive Bayes          |                |                 |              |               |                |             |
- | SVM                  |                |                 |              |               |                |             |
- | Random Forest        |                |                 |              |               |                |             |
- | XGBoost              |                |                 |              |               |                |             |
+ | SVM                  |     0.873           |      0.905           |     0.834         |     0.723          |      0.336          |     0.808        |
+ | Random Forest        |     0.94           |     0.93            |     0.95         |     0.72          |     0.34           |     0.85        |
+ | XGBoost              |     0.99         |      1.0        |    0.99      |     0.812          |      0.601          |     0.821        |
  
 ### Performance of fine tuned models on RBO balanced dataset
 
  |        Model         | Train Accuracy | Train Precision | Train Recall | Test Accuracy | Test Precision | Test Recall |
  | :--                  | :--            | :--             | :--          | :--           | :--            | :--         |
- | Logistic Regression  |                |                 |              |               |                |             |
- | Naive Bayes          |                |                 |              |               |                |             |
  | SVM                  |                |                 |              |               |                |             |
- | Random Forest        |                |                 |              |               |                |             |
- | XGBoost              |                |                 |              |               |                |             |
+ | Random Forest        |      0.966          |    0.959             |     0.974         |      0.76         |     0.45           |    0.84         |
+ | XGBoost              |      0.99          |       1          |    0.99          |      0.801         |    0.623            |    0.785         |
